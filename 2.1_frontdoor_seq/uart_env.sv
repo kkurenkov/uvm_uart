@@ -6,7 +6,7 @@ class uart_env extends uvm_env;
   uart_agent agent;
   uart_reg_adapter reg_adapter;
   uart_reg_predictor reg_predictor;
-  high_reg_uart_layering reg_uart_layering;
+
   `uvm_component_utils(uart_env)
 
   // ----------------------------------------------------------------------------
@@ -30,16 +30,17 @@ class uart_env extends uvm_env;
 
     reg_predictor = uart_reg_predictor::type_id::create(.name("reg_predictor"), .parent(this));
     reg_adapter = uart_reg_adapter::type_id::create(.name("reg_adapter")); 
-
-    reg_uart_layering = high_reg_uart_layering::type_id::create("reg_uart_layering", .parent(this));
   endfunction
 
+  // ----------------------------------------------------------------------------
+  // function void connect_phase
+  // ----------------------------------------------------------------------------
+
   function void connect_phase(uvm_phase phase);
-    cfg.reg_model.map.set_sequencer( .sequencer(reg_uart_layering.high_reg_sequencer), .adapter( reg_adapter ) );
+    cfg.reg_model.map.set_sequencer( .sequencer(agent.sequencer), .adapter( reg_adapter ) );
     reg_predictor.map = cfg.reg_model.default_map;
     reg_predictor.adapter = reg_adapter;
-    reg_uart_layering.uart_2_high_reg_mon.item_collected_port.connect(reg_predictor.bus_in);
-    reg_uart_layering.uart_connect_to_agent(agent);
+    agent.monitor.item_collected_port.connect(reg_predictor.bus_in);
   endfunction
 
 endclass

@@ -3,7 +3,7 @@
 // Create date: 28/09/2020
 // Project Name:
 // Module Name: UART
-// Target Devices:
+// Target Devices: 
 // Tool Versions: 
 // Description:
 // Revision:
