@@ -28,7 +28,7 @@ typedef uvm_sequencer #(high_reg_item) High_reg_sequencer;
 //---------------------------------------------------------------------------
 
 class high_reg2uart_seq extends uvm_sequence #(uart_item);
-  `uvm_object_utils(high_reg2uart_seq);
+  `uvm_object_utils(high_reg2uart_seq)
 
   function new(string name="");
     super.new(name);

@@ -44,7 +44,7 @@ class uart_reg_adapter extends uvm_reg_adapter;
     `uvm_fatal(get_name(), "$cast is failed")
 
     rw.addr = uart_item_reg.addr;
-    rw.kind = uart_item_reg.kind;
+    rw.kind = (uart_item_reg.kind) ? UVM_WRITE : UVM_READ;
     rw.data = uart_item_reg.data;
     rw.status = UVM_IS_OK;
 
