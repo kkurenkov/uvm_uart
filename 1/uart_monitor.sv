@@ -1,4 +1,3 @@
-
 `ifndef INC_UART_MONITOR
 `define INC_UART_MONITOR
 
@@ -6,8 +5,8 @@ class uart_monitor extends uvm_monitor;
   `uvm_component_utils(uart_monitor)
 
   virtual uart_if vif;
+
   protected uart_agent_cfg cfg;
-  
   protected int time_bit;
   protected process mon_item_thread;
   uvm_analysis_port #(uart_item) item_collected_port;
@@ -16,6 +15,7 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
   // function new
   // ----------------------------------------------------------------------------
+
   function new(string name, uvm_component parent);
     super.new(name, parent);
     item_collected_port = new("item_collected_port", this);
@@ -24,6 +24,7 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
   // function set_cfg
   // ----------------------------------------------------------------------------
+
   function void set_cfg(uart_agent_cfg _cfg);
     passed_arg_is_not_null: assert(_cfg != null)
     else
@@ -34,6 +35,7 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
   // function build_phase
   // ----------------------------------------------------------------------------
+
   function void build_phase(uvm_phase phase);
     vif = cfg.vif;
   endfunction
@@ -41,6 +43,7 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
   // task run_phase
   // ----------------------------------------------------------------------------
+
   task run_phase(uvm_phase phase);
     time_bit = 1_000_000 / cfg.uart_ratio;
 
@@ -55,6 +58,7 @@ class uart_monitor extends uvm_monitor;
           join_none
       @(posedge vif.rst);
         mon_item_thread.kill();
+        `uvm_info(get_full_name(), "kill process", UVM_MEDIUM)
         do_reset();
     end
   endtask
@@ -62,6 +66,7 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
   // task mon_item
   // ----------------------------------------------------------------------------
+
   task mon_item();
     forever begin  
       #time_bit;
@@ -70,17 +75,15 @@ class uart_monitor extends uvm_monitor;
         bus_item.start_bit = vif.tx;
         
         for (int i = 0; i < 8; i++) begin
-        #time_bit;
+          #time_bit;
           bus_item.data[i] = vif.tx;
         end
 
         #time_bit;
-          bus_item.parity_bit = vif.tx;
+        bus_item.parity_bit = vif.tx;
 
-        // do begin
-          #time_bit;
-          bus_item.end_bit = vif.tx;
-        // end while(! vif.tx);
+        #time_bit;
+        bus_item.end_bit = vif.tx;
 
         `uvm_info("MON", $sformatf("bus_item MON:\n%s", bus_item.sprint()), UVM_MEDIUM)
         item_collected_port.write(bus_item);
@@ -91,6 +94,7 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
   // task do_reset
   // ----------------------------------------------------------------------------
+
   task do_reset();
     bus_item = uart_item::type_id::create("bus_item");
   endtask : do_reset

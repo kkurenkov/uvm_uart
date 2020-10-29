@@ -1,7 +1,5 @@
-
 `ifndef INC_UART_AGENT_CFG
 `define INC_UART_AGENT_CFG
-
 
 class uart_agent_cfg extends uvm_object;
   `uvm_object_utils(uart_agent_cfg)
@@ -11,16 +9,18 @@ class uart_agent_cfg extends uvm_object;
   int uart_ratio;
   bit is_active = 0;
 
-// ----------------------------------------------------------------------------
-// function new
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
+  // function new
+  // ----------------------------------------------------------------------------
+
   function new(string name ="uart_agent_cfg" );
     super.new(name);
   endfunction
 
-// ----------------------------------------------------------------------------
-// function set_vif
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
+  // function set_vif
+  // ----------------------------------------------------------------------------
+
   function void set_vif(virtual uart_if _vif);
     vif_ref_is_not_null: assert(_vif != null)
     else
@@ -28,9 +28,10 @@ class uart_agent_cfg extends uvm_object;
     vif = _vif;
   endfunction
 
-// ----------------------------------------------------------------------------
-// function set_uart_ratio
-// ----------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------
+  // function set_uart_ratio
+  // ----------------------------------------------------------------------------
+
   function void set_uart_ratio(int ratio = 19200);
     this.uart_ratio = ratio;
 
@@ -39,8 +40,7 @@ class uart_agent_cfg extends uvm_object;
 
     `uvm_info(get_full_name(), $sformatf("uart ratio == %0d bit/sec", uart_ratio), UVM_MEDIUM)
 
-  endfunction : set_uart_ratio
-
+  endfunction
 
 endclass
 `endif
