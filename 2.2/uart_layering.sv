@@ -39,6 +39,8 @@ class high_reg2uart_seq extends uvm_sequence #(uart_item);
  virtual task body();
     high_reg_item reg_transaction;
     uart_item req;
+    uart_item uart_rsp;
+
 
     forever begin
       up_sequencer.get_next_item(reg_transaction);
@@ -47,10 +49,11 @@ class high_reg2uart_seq extends uvm_sequence #(uart_item);
             `uvm_create(req)
                   rand_RX_TX: assert(req.randomize()
                       with {
-                      req.start_bit== 0;
+                      req.start_bit == 0;
                       req.data == reg_transaction.kind;
                       req.parity_bit == ^reg_transaction.kind;
-                      req.end_bit==1;
+                      req.end_bit == 1;
+                      req.direction == 1;
                     })
                     else
                       `uvm_fatal(get_full_name(), "Randomization failed!")
@@ -59,10 +62,11 @@ class high_reg2uart_seq extends uvm_sequence #(uart_item);
             `uvm_create(req)
                   rand_addr: assert(req.randomize()
                       with {
-                      req.start_bit  == 0;
-                      req.data       == reg_transaction.addr;
+                      req.start_bit == 0;
+                      req.data == reg_transaction.addr;
                       req.parity_bit == ^reg_transaction.addr;
-                      req.end_bit    == 1;
+                      req.end_bit == 1;
+                      req.direction == 1;
                     })
                     else
                       `uvm_fatal(get_full_name(), "Randomization failed!")
@@ -71,14 +75,56 @@ class high_reg2uart_seq extends uvm_sequence #(uart_item);
             `uvm_create(req)
                 rand_data: assert(req.randomize()
                     with {
-                    req.start_bit  == 0;
-                    req.data       == reg_transaction.data;
+                    req.start_bit == 0;
+                    req.data == reg_transaction.data;
                     req.parity_bit == ^reg_transaction.data;
-                    req.end_bit    == 1;
+                    req.end_bit == 1;
+                    req.direction == 1;
                   })
                   else
                     `uvm_fatal(get_full_name(), "Randomization failed!")
               `uvm_send(req)
+          end
+          UVM_READ: begin
+                    
+            `uvm_create(req)
+                  rand_read: assert(req.randomize()
+                    with {
+                      req.start_bit == 0;
+                      req.data == reg_transaction.kind;
+                      req.parity_bit == ^reg_transaction.kind;
+                      req.end_bit == 1;
+                      req.direction == 1;
+                    })
+                    else
+                      `uvm_fatal(get_full_name(), "Randomization failed!")
+              `uvm_send(req)
+
+                
+            `uvm_create(req)
+                  rand_addr_read: assert(req.randomize()
+                    with {
+                      req.start_bit == 0;
+                      req.data == reg_transaction.addr;
+                      req.parity_bit == ^reg_transaction.addr;
+                      req.end_bit == 1;
+                      req.direction == 1;
+                    })
+                    else
+                      `uvm_fatal(get_full_name(), "Randomization failed!")
+              `uvm_send(req)
+
+              get_response(rsp);
+
+              cast_is_successfull: assert($cast(uart_rsp, rsp))
+              else
+                `uvm_fatal(get_full_name(), "$cast is failed!")
+
+              #100;
+              `uvm_info("Response", $sformatf("RSP :\n%s", uart_rsp.sprint()), UVM_MEDIUM)
+              #1000;
+              $finish;
+
           end
         endcase
       up_sequencer.item_done();

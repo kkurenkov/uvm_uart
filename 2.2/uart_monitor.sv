@@ -8,9 +8,11 @@ class uart_monitor extends uvm_monitor;
 
   protected uart_agent_cfg cfg;
   protected int time_bit;
-  protected process mon_item_thread;
+  protected process mon_tx_thread;
+  protected process mon_rx_thread;
   uvm_analysis_port #(uart_item) item_collected_port;
-  uart_item bus_item;
+  uart_item bus_item_rx;
+  uart_item bus_item_tx;
 
   // ----------------------------------------------------------------------------
   // function new
@@ -51,42 +53,80 @@ class uart_monitor extends uvm_monitor;
     forever begin
       @(negedge vif.rst);
           fork
-            begin
-              mon_item_thread = process::self();
-              mon_item();
-            end
+          begin
+            mon_tx_thread = process::self();
+            mon_tx_item();
+          end
+
+          begin
+            mon_rx_thread = process::self();
+            mon_rx_item();
+          end
           join_none
-      @(posedge vif.rst);
-        mon_item_thread.kill();
+      @(posedge vif.rst); begin
+        mon_tx_thread.kill();
+        mon_rx_thread.kill();
         `uvm_info(get_full_name(), "kill process", UVM_MEDIUM)
         do_reset();
+      end
     end
   endtask
 
   // ----------------------------------------------------------------------------
-  // task mon_item
+  // task mon_tx_item
   // ----------------------------------------------------------------------------
 
-  task mon_item();
+  task mon_tx_item();
     forever begin  
       #time_bit;
       if(vif.tx == 0) begin // catch start bit
-        bus_item = uart_item::type_id::create("bus_item");
-        bus_item.start_bit = vif.tx;
+        bus_item_tx = uart_item::type_id::create("bus_item_tx");
+        bus_item_tx.start_bit = vif.tx;
         
         for (int i = 0; i < 8; i++) begin
           #time_bit;
-          bus_item.data[i] = vif.tx;
+          bus_item_tx.data[i] = vif.tx;
         end
 
         #time_bit;
-        bus_item.parity_bit = vif.tx;
+        bus_item_tx.parity_bit = vif.tx;
 
         #time_bit;
-        bus_item.end_bit = vif.tx;
+        bus_item_tx.end_bit = vif.tx;
 
-        `uvm_info("MON", $sformatf("bus_item MON:\n%s", bus_item.sprint()), UVM_MEDIUM)
-        item_collected_port.write(bus_item);
+        bus_item_tx.direction = 1;  //  TX ---> direction == 1;
+        `uvm_info("TX", $sformatf("MON:\n%s", bus_item_tx.sprint()), UVM_MEDIUM)
+        item_collected_port.write(bus_item_tx);
+      end
+    end
+  endtask
+
+  // ----------------------------------------------------------------------------
+  // task mon_rx_item
+  // ----------------------------------------------------------------------------
+
+  task mon_rx_item();
+    forever begin  
+      #time_bit;
+      if(vif.rx == 0) begin // catch start bit
+        bus_item_rx = uart_item::type_id::create("bus_item_rx");
+        bus_item_rx.start_bit = vif.rx;
+        
+        for (int i = 0; i < 8; i++) begin
+          #time_bit;
+          bus_item_rx.data[i] = vif.rx;
+        end
+
+        #time_bit;
+        bus_item_rx.parity_bit = vif.rx;
+
+        #time_bit;
+        bus_item_rx.end_bit = vif.rx;
+
+        bus_item_rx.direction = 0;  //  RX ---> direction == 0;
+
+        `uvm_info("RX", $sformatf("MON:\n%s", bus_item_rx.sprint()), UVM_MEDIUM)
+        item_collected_port.write(bus_item_rx);
       end
     end
   endtask
@@ -96,7 +136,8 @@ class uart_monitor extends uvm_monitor;
   // ----------------------------------------------------------------------------
 
   task do_reset();
-    bus_item = uart_item::type_id::create("bus_item");
+    bus_item_rx = uart_item::type_id::create("bus_item_rx");
+    bus_item_tx = uart_item::type_id::create("bus_item_tx");
   endtask
 
 endclass // uart_monitor
