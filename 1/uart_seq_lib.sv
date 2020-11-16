@@ -21,11 +21,8 @@ class uart_base_seq extends uvm_sequence #(uart_item);
   // ----------------------------------------------------------------------------
 
   task pre_body();
-    uvm_phase phase;
-    phase = get_starting_phase();
-
-    if(phase != null)
-      phase.raise_objection(this, {"Running sequence '", get_full_name(), "'"});
+    if(starting_phase != null)
+      starting_phase.raise_objection(this, {"Running sequence '", get_full_name(), "'"});
   endtask
 
   // ----------------------------------------------------------------------------
@@ -33,12 +30,8 @@ class uart_base_seq extends uvm_sequence #(uart_item);
   // ----------------------------------------------------------------------------
 
   task post_body();
-    uvm_phase phase;
-
-    phase = get_starting_phase();
-
-    if(phase != null)
-      phase.drop_objection(this);
+    if(starting_phase != null)
+      starting_phase.drop_objection(this);
   endtask
 endclass
 
