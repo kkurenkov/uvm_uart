@@ -95,7 +95,7 @@ class uart_monitor extends uvm_monitor;
         bus_item_tx.end_bit = vif.tx;
 
         bus_item_tx.direction = 1;  //  TX ---> direction == 1;
-        // `uvm_info("MON tx", $sformatf("\n%s", bus_item_tx.sprint()), UVM_MEDIUM)
+        `uvm_info("MON tx", $sformatf("\n%s", bus_item_tx.sprint()), UVM_MEDIUM)
         item_collected_port.write(bus_item_tx);
       end
     end
@@ -125,7 +125,7 @@ class uart_monitor extends uvm_monitor;
 
         bus_item_rx.direction = 0;  //  RX ---> direction == 0;
 
-        // `uvm_info("MON rx", $sformatf("\n%s", bus_item_rx.sprint()), UVM_MEDIUM)
+        `uvm_info("MON rx", $sformatf("\n%s", bus_item_rx.sprint()), UVM_MEDIUM)
         item_collected_port.write(bus_item_rx);
       end
     end

@@ -60,8 +60,8 @@ class uart_base_test extends uvm_test;
 endclass
 
 class uart_run_test extends uart_base_test;
-  uart_reg_block    ral_model_1;
-  uart_reg_block    ral_model_2;
+  uart_true_seq seq_true_ag1; 
+  uart_true_seq seq_true_ag2; 
   
   `uvm_component_utils(uart_run_test)
 
@@ -79,6 +79,11 @@ class uart_run_test extends uart_base_test;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
+    
+    seq_true_ag1 = uart_true_seq::type_id::create("seq_true_ag1");
+    seq_true_ag2 = uart_true_seq::type_id::create("seq_true_ag2");
+    seq_true_ag1.number_transaction=3;
+    seq_true_ag2.number_transaction=3;
   endfunction
 
 
@@ -92,11 +97,6 @@ class uart_run_test extends uart_base_test;
     int data_for_write_2;
     super.main_phase(phase);
     
-    ral_model_1 = uart_reg_block::type_id::create("ral_model_1");
-    ral_model_1 = env_cfg.reg_model_1;
-
-    ral_model_2 = uart_reg_block::type_id::create("ral_model_2");
-    ral_model_2 = env_cfg.reg_model_2;
     phase.raise_objection(this);
 
     #100;
@@ -105,32 +105,14 @@ class uart_run_test extends uart_base_test;
     env.cfg.vif.rst = 1;
     #100
     env.cfg.vif.rst = 0;
-
     #100;
 
-    repeat(3) begin
-      data_for_write_1 = $urandom()&'hFF;
-      data_for_write_2 = $urandom()&'hFF;
-      fork
-        ral_model_1.r1.write (status,data_for_write_1);
-        ral_model_2.r1.write (status,data_for_write_2);
-      join
-      // #200;
-      //   ral_model_1.r1.write (status,$urandom()&'hFF);
-      // #200;
-        
-      //   ral_model_1.r1.write (status,$urandom()&'hFF);
+  fork
+    seq_true_ag1.start(env.agent_1.sequencer);
+    seq_true_ag2.start(env.agent_2.sequencer);
+  join
 
-    #100;
-      `uvm_info(get_name(), $sformatf("agent_1 tx -> == %0h ral_model_2.r1.get_mirrored_value(): %0h", data_for_write_1, ral_model_2.r1.get_mirrored_value()), UVM_MEDIUM);
-      `uvm_info(get_name(), $sformatf("agent_2 tx -> == %0h ral_model_1.r1.get_mirrored_value(): %0h", data_for_write_2, ral_model_1.r1.get_mirrored_value()), UVM_MEDIUM);
-
-    end
-    #100;
-
-    // `uvm_info(get_name(), $sformatf("data_for_write_r2 == %0h ral_model.r2.get_mirrored_value(): %0h", data_for_write_r2, ral_model.r2.get_mirrored_value()), UVM_MEDIUM);
-    // `uvm_info(get_name(), $sformatf("data_for_write_r1 == %0h ral_model.r1.get_mirrored_value(): %0h", data_for_write_r1, ral_model.r1.get_mirrored_value()), UVM_MEDIUM);
-
+  #1000;
     phase.drop_objection(this);
   endtask
 
