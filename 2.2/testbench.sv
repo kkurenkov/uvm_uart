@@ -23,6 +23,11 @@ module uart_tb_top();
   assign uart_main_intf.uart_ag_1_intf.rx = uart_main_intf.uart_ag_2_intf.tx;
   assign uart_main_intf.uart_ag_2_intf.rx = uart_main_intf.uart_ag_1_intf.tx;
 
+  assign uart_main_intf.uart_ag_1_intf.rst = uart_main_intf.rst;
+  assign uart_main_intf.uart_ag_2_intf.rst = uart_main_intf.rst;
+
+
+
   initial
     uvm_config_db#(virtual uart_main_if)::set(uvm_root::get(), "uvm_test_top", "vif", uart_main_intf);
     

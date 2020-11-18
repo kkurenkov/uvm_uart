@@ -60,8 +60,8 @@ class uart_base_test extends uvm_test;
 endclass
 
 class uart_run_test extends uart_base_test;
-  uart_true_seq seq_true_ag1; 
-  uart_true_seq seq_true_ag2; 
+  uart_high_seq seq_high_ag1; 
+  uart_high_seq seq_high_ag2; 
   
   `uvm_component_utils(uart_run_test)
 
@@ -80,10 +80,10 @@ class uart_run_test extends uart_base_test;
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     
-    seq_true_ag1 = uart_true_seq::type_id::create("seq_true_ag1");
-    seq_true_ag2 = uart_true_seq::type_id::create("seq_true_ag2");
-    seq_true_ag1.number_transaction=3;
-    seq_true_ag2.number_transaction=3;
+    seq_high_ag1 = uart_high_seq::type_id::create("seq_high_ag1");
+    seq_high_ag2 = uart_high_seq::type_id::create("seq_high_ag2");
+    seq_high_ag1.number_transaction=3;
+    seq_high_ag2.number_transaction=3;
   endfunction
 
 
@@ -108,8 +108,8 @@ class uart_run_test extends uart_base_test;
     #100;
 
   fork
-    seq_true_ag1.start(env.agent_1.sequencer);
-    seq_true_ag2.start(env.agent_2.sequencer);
+    seq_high_ag1.start(env.high_agent_1.high_reg_sequencer);
+    seq_high_ag2.start(env.high_agent_2.high_reg_sequencer);
   join
 
   #1000;

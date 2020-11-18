@@ -4,9 +4,6 @@
 class uart_base_seq extends uvm_sequence #(uart_item);
   `uvm_object_utils(uart_base_seq)
   int        number_transaction;
-  bit        start_bit;
-  bit        parity_bit;
-  bit        end_bit;
 
   // ----------------------------------------------------------------------------
   // function new
@@ -52,7 +49,7 @@ class uart_true_seq extends uart_base_seq;
   // ----------------------------------------------------------------------------
 
   task body();
-    `uvm_info(get_type_name(), $sformatf("Start sequence"), UVM_MEDIUM)
+    `uvm_info(get_type_name(), $sformatf("Start true sequence"), UVM_MEDIUM)
 
     repeat (number_transaction) begin
         `uvm_create(req)
@@ -70,7 +67,7 @@ class uart_true_seq extends uart_base_seq;
        `uvm_send(req)
         get_response(rsp);
     end
-      `uvm_info(get_type_name(), $sformatf("End sequence"), UVM_MEDIUM)
+      `uvm_info(get_type_name(), $sformatf("End true sequence"), UVM_MEDIUM)
   endtask
 
 endclass
@@ -92,20 +89,23 @@ class uart_error_seq extends uart_base_seq;
   // ----------------------------------------------------------------------------
 
   task body();
-    repeat (number_transaction) begin
-    `uvm_create(req)
-      randomization_with_err_success: assert(req.randomize()
-      with {
-      // req.start_bit==1;
-      // req.data=='hFF;
-      // req.parity_bit == 1;
-      // req.end_bit==1;
-      })
-      else `uvm_fatal(get_full_name(), "Randomization failed!")
+    `uvm_info(get_type_name(), $sformatf("Start error sequence"), UVM_MEDIUM)
 
-  `uvm_send(req)
-    get_response(rsp);
-  end
+    repeat (number_transaction) begin
+      `uvm_create(req)
+        randomization_with_err_success: assert(req.randomize()
+        with {
+        // req.start_bit==1;
+        // req.data=='hFF;
+        // req.parity_bit == 1;
+        // req.end_bit==1;
+        })
+        else `uvm_fatal(get_full_name(), "Randomization failed!")
+
+      `uvm_send(req)
+        get_response(rsp);
+    end
+    `uvm_info(get_type_name(), $sformatf("End error sequence"), UVM_MEDIUM)
   endtask
 endclass
 `endif

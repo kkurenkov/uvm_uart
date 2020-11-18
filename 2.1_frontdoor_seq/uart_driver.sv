@@ -40,6 +40,7 @@ class uart_driver extends uvm_driver #(uart_item);
     #time_bit;
     forever begin
       @(negedge vif.rst);
+        `uvm_info(get_full_name(), "end reset", UVM_MEDIUM)
         fork
           begin
             drive_item_thread = process::self();
@@ -48,7 +49,7 @@ class uart_driver extends uvm_driver #(uart_item);
         join_none
       @(posedge vif.rst);
         drive_item_thread.kill();
-        `uvm_info(get_full_name(), "kill process", UVM_MEDIUM)
+        `uvm_info(get_full_name(), "start reset", UVM_MEDIUM)
         do_reset();
     end
 

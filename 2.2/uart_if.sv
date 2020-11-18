@@ -18,9 +18,6 @@ interface uart_main_if ();
   //   uart_ag_2_intf.rst = rst;
   // end
 
-  assign uart_ag_1_intf.rst = rst;
-  assign uart_ag_2_intf.rst = rst;
-
 endinterface
 
 `endif

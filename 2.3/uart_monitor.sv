@@ -52,7 +52,8 @@ class uart_monitor extends uvm_monitor;
     #time_bit;
     forever begin
       @(negedge vif.rst);
-          fork
+        `uvm_info(get_full_name(), "end reset", UVM_MEDIUM)
+        fork
           begin
             mon_tx_thread = process::self();
             mon_tx_item();
@@ -62,11 +63,11 @@ class uart_monitor extends uvm_monitor;
             mon_rx_thread = process::self();
             mon_rx_item();
           end
-          join_none
+        join_none
       @(posedge vif.rst); begin
         mon_tx_thread.kill();
         mon_rx_thread.kill();
-        `uvm_info(get_full_name(), "kill process", UVM_MEDIUM)
+        `uvm_info(get_full_name(), "start reset", UVM_MEDIUM)
         do_reset();
       end
     end

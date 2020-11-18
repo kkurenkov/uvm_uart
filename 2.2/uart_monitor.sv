@@ -52,7 +52,8 @@ class uart_monitor extends uvm_monitor;
     #time_bit;
     forever begin
       @(negedge vif.rst);
-          fork
+        `uvm_info(get_full_name(), "end reset", UVM_MEDIUM)
+        fork
           begin
             mon_tx_thread = process::self();
             mon_tx_item();
@@ -62,11 +63,11 @@ class uart_monitor extends uvm_monitor;
             mon_rx_thread = process::self();
             mon_rx_item();
           end
-          join_none
+        join_none
       @(posedge vif.rst); begin
         mon_tx_thread.kill();
         mon_rx_thread.kill();
-        `uvm_info(get_full_name(), "kill process", UVM_MEDIUM)
+        `uvm_info(get_full_name(), "start reset", UVM_MEDIUM)
         do_reset();
       end
     end
@@ -93,9 +94,8 @@ class uart_monitor extends uvm_monitor;
 
         #time_bit;
         bus_item_tx.end_bit = vif.tx;
-
         bus_item_tx.direction = 1;  //  TX ---> direction == 1;
-        `uvm_info("MON tx", $sformatf("\n%s", bus_item_tx.sprint()), UVM_MEDIUM)
+        // `uvm_info("MON tx", $sformatf("\n%s", bus_item_tx.sprint()), UVM_MEDIUM)
         item_collected_port.write(bus_item_tx);
       end
     end
@@ -124,8 +124,7 @@ class uart_monitor extends uvm_monitor;
         bus_item_rx.end_bit = vif.rx;
 
         bus_item_rx.direction = 0;  //  RX ---> direction == 0;
-
-        `uvm_info("MON rx", $sformatf("\n%s", bus_item_rx.sprint()), UVM_MEDIUM)
+        // `uvm_info("MON rx", $sformatf("\n%s", bus_item_rx.sprint()), UVM_MEDIUM)
         item_collected_port.write(bus_item_rx);
       end
     end

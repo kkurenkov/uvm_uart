@@ -14,6 +14,7 @@ package uart_pkg;
   typedef uvm_sequencer #(uart_item) uart_sequencer;
 
   `include "uart_agent.sv"
+  `include "uart_layering.sv"
   `include "uart_env_cfg.sv"
   `include "uart_env.sv"
   `include "uart_seq_lib.sv"

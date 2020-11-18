@@ -1,12 +1,9 @@
 `ifndef INC_UART_SEQ_LIB
 `define INC_UART_SEQ_LIB
 
-class uart_base_seq extends uvm_sequence #(uart_item);
+class uart_base_seq extends uvm_sequence #(high_reg_item);
   `uvm_object_utils(uart_base_seq)
   int        number_transaction;
-  bit        start_bit;
-  bit        parity_bit;
-  bit        end_bit;
 
   // ----------------------------------------------------------------------------
   // function new
@@ -36,14 +33,14 @@ class uart_base_seq extends uvm_sequence #(uart_item);
 endclass
 
 
-class uart_true_seq extends uart_base_seq;
-  `uvm_object_utils(uart_true_seq)
+class uart_high_seq extends uart_base_seq;
+  `uvm_object_utils(uart_high_seq)
 
   // ----------------------------------------------------------------------------
   // function new
   // ----------------------------------------------------------------------------
 
-  function new(string name ="uart_true_seq");
+  function new(string name ="uart_high_seq");
     super.new(name);
   endfunction
 
@@ -55,57 +52,21 @@ class uart_true_seq extends uart_base_seq;
     `uvm_info(get_type_name(), $sformatf("Start sequence"), UVM_MEDIUM)
 
     repeat (number_transaction) begin
-        `uvm_create(req)
+      `uvm_create(req)
 
-        randomization_is_successfull: assert(req.randomize()
-        with {
-        req.start_bit==0;
-        //req.data=='hFF;
-        req.end_bit==1;
-        })
-        else `uvm_fatal(get_full_name(), "Randomization failed!")
-
-        req.parity_bit = ^req.data;
-          
-       `uvm_send(req)
-        // get_response(rsp);
+      randomization_is_successfull: assert(req.randomize()
+      with { 
+        req.kind == 1;
+        req.addr inside {0,1};
+        // req.data == 2;
+      })
+      else `uvm_fatal(get_full_name(), "Randomization failed!")
+  
+      `uvm_send(req)
     end
       `uvm_info(get_type_name(), $sformatf("End sequence"), UVM_MEDIUM)
   endtask
 
 endclass
 
-
-class uart_error_seq extends uart_base_seq;
-  `uvm_object_utils(uart_error_seq)
-
-  // ----------------------------------------------------------------------------
-  // function new
-  // ----------------------------------------------------------------------------
-
-  function new(string name ="uart_error_seq");
-    super.new(name);
-  endfunction
-
-  // ----------------------------------------------------------------------------
-  // task body
-  // ----------------------------------------------------------------------------
-
-  task body();
-    repeat (number_transaction) begin
-    `uvm_create(req)
-      randomization_with_err_success: assert(req.randomize()
-      with {
-      // req.start_bit==1;
-      // req.data=='hFF;
-      // req.parity_bit == 1;
-      // req.end_bit==1;
-      })
-      else `uvm_fatal(get_full_name(), "Randomization failed!")
-
-  `uvm_send(req)
-    get_response(rsp);
-  end
-  endtask
-endclass
 `endif
